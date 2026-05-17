@@ -81,6 +81,7 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           source: 'docker-compose.prod.yml'
           target: '${{ secrets.VPS_DEPLOY_PATH }}'
+          overwrite: true
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
