@@ -2,7 +2,7 @@
 # BuscaPRO web — Dockerfile.dev
 # Hot reload + monorepo (rodar a partir da raiz do repo)
 # ============================================================
-FROM node:20-alpine
+FROM node:22-alpine
 
 RUN apk add --no-cache libc6-compat && corepack enable && corepack prepare pnpm@9.12.0 --activate
 
