@@ -1,0 +1,17 @@
+# ============================================================
+# BuscaPRO web — Dockerfile.dev
+# Hot reload + monorepo (rodar a partir da raiz do repo)
+# ============================================================
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat && corepack enable
+
+WORKDIR /repo
+
+# Bind-mounts vão sobrescrever esses paths em runtime.
+# O CMD assume que `pnpm install` já rodou na raiz (via compose).
+EXPOSE 3000
+ENV NODE_ENV=development
+
+WORKDIR /repo/apps/web
+CMD ["pnpm", "dev"]

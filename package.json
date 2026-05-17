@@ -1,0 +1,34 @@
+{
+  "name": "buscapro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BuscaPRO — plataforma mobile-first que conecta clientes a prestadores de serviços locais.",
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "turbo run db:studio",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up --build",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
+    "docker:prod": "docker compose -f docker-compose.prod.yml up -d --build",
+    "docker:prod:down": "docker compose -f docker-compose.prod.yml down"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.3"
+  }
+}

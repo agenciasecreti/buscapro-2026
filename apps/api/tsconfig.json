@@ -1,0 +1,20 @@
+{
+  "extends": "@buscapro/tsconfig/node.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/modules/*": ["./src/modules/*"],
+      "@/routes/*": ["./src/routes/*"],
+      "@/middlewares/*": ["./src/middlewares/*"],
+      "@/prisma/*": ["./src/prisma/*"],
+      "@/config/*": ["./src/config/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/types/*": ["./src/types/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

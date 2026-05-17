@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================
+ * BuscaPRO — Design tokens (Modern Purple)
+ * Marca: roxo vibrante + lilás suave sobre superfícies
+ * claras — atmosfera app mobile premium (Airbnb/Stripe iOS).
+ * Cores em HSL (sem hsl()) p/ compor com /alpha no Tailwind.
+ * ===================================================== */
+
+@layer base {
+  :root {
+    /* Superfícies */
+    --background: 0 0% 100%;
+    --foreground: 258 30% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 258 30% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 258 30% 14%;
+
+    /* Marca — roxo vibrante (L=55 garante 4.5:1 c/ texto branco) */
+    --primary: 262 83% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 263 74% 48%;
+
+    /* Secundário — lilás suave */
+    --secondary: 258 100% 97%;
+    --secondary-foreground: 263 58% 42%;
+
+    /* Acento — violeta (usado como texto em badges: mantém contraste) */
+    --accent: 264 78% 52%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Apoio — neutro muito claro com leve tom frio */
+    --muted: 260 40% 98%;
+    --muted-foreground: 256 14% 46%;
+
+    /* Estados semânticos */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 72% 38%;
+    --success-foreground: 0 0% 100%;
+
+    /* Bordas / inputs / foco — suaves */
+    --border: 260 32% 92%;
+    --input: 260 28% 90%;
+    --ring: 262 83% 55%;
+
+    /* Raio base — cantos mais suaves */
+    --radius: 0.875rem;
+  }
+
+  /* Dark mode via classe (.dark) — next-themes controla system/manual.
+   * Tons escuros suaves (sem preto absoluto), roxo preservado,
+   * profundidade elegante estilo Linear/Vercel/Notion. */
+  .dark {
+    --background: 258 30% 8%;
+    --foreground: 255 30% 96%;
+    --card: 258 26% 11%;
+    --card-foreground: 255 30% 96%;
+    --popover: 258 26% 11%;
+    --popover-foreground: 255 30% 96%;
+
+    --primary: 262 84% 62%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 262 84% 70%;
+
+    --secondary: 258 28% 18%;
+    --secondary-foreground: 255 40% 92%;
+
+    --accent: 266 86% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 258 24% 15%;
+    --muted-foreground: 255 16% 66%;
+
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 64% 44%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 258 24% 20%;
+    --input: 258 22% 24%;
+    --ring: 262 84% 66%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* Transição suave ao alternar tema (reduced-motion neutraliza abaixo) */
+  *,
+  *::before,
+  *::after {
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.18);
+    color: hsl(var(--foreground));
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Foco visível e consistente em toda a UI */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Acessibilidade: respeita quem prefere menos movimento */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

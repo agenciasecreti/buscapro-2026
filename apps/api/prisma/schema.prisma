@@ -1,0 +1,121 @@
+// =====================================================
+// BuscaPRO — Prisma schema
+// Banco: PostgreSQL (NeonDB)
+// =====================================================
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------
+// Enums
+// -----------------------------------------------------
+
+enum Role {
+  CLIENT
+  PROVIDER
+}
+
+// -----------------------------------------------------
+// User — cliente ou prestador de serviços
+// -----------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(CLIENT)
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services Service[]
+  reviews  Review[]
+  location Location?
+
+  @@map("users")
+}
+
+// -----------------------------------------------------
+// Category — categoria de serviço (ex.: Limpeza, Elétrica)
+// -----------------------------------------------------
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  services Service[]
+
+  @@map("categories")
+}
+
+// -----------------------------------------------------
+// Service — serviço anunciado por um prestador
+// -----------------------------------------------------
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  imageUrl    String?
+  userId      String
+  categoryId  String
+  createdAt   DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  reviews  Review[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@map("services")
+}
+
+// -----------------------------------------------------
+// Review — avaliação de um serviço feita por um usuário
+// -----------------------------------------------------
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int
+  comment    String?
+  reviewerId String
+  serviceId  String
+  createdAt  DateTime @default(now())
+
+  reviewer User    @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  service  Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([reviewerId])
+  @@index([serviceId])
+  @@map("reviews")
+}
+
+// -----------------------------------------------------
+// Location — localização única por usuário (1:1)
+// -----------------------------------------------------
+
+model Location {
+  id        String  @id @default(cuid())
+  city      String
+  state     String
+  latitude  Float?
+  longitude Float?
+  userId    String  @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("locations")
+}

@@ -1,0 +1,58 @@
+# ============================================================
+# BuscaPRO — docker-compose.prod.yml
+# Produção: usa imagens publicadas no GHCR (ou build local).
+# Banco NeonDB é externo — DATABASE_URL injetado via .env.
+# Uso: docker compose -f docker-compose.prod.yml up -d
+# ============================================================
+
+services:
+  api:
+    container_name: buscapro-api
+    image: ${API_IMAGE:-ghcr.io/buscapro/api:latest}
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3333}:3333"
+    env_file:
+      - ./apps/api/.env.production
+    environment:
+      NODE_ENV: production
+      API_PORT: 3333
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://buscapro.com.br}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3333/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    volumes:
+      # Persiste uploads quando STORAGE_DRIVER=local (em prod prefira S3).
+      - api-uploads:/app/uploads
+    networks:
+      - buscapro
+
+  web:
+    container_name: buscapro-web
+    image: ${WEB_IMAGE:-ghcr.io/buscapro/web:latest}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    env_file:
+      - ./apps/web/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - buscapro
+
+volumes:
+  api-uploads:
+
+networks:
+  buscapro:
+    driver: bridge

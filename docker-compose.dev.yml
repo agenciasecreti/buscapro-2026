@@ -1,0 +1,62 @@
+# ============================================================
+# BuscaPRO — docker-compose.dev.yml
+# Dev local com hot-reload. Banco NeonDB é externo.
+# Uso: docker compose -f docker-compose.dev.yml up --build
+# ============================================================
+
+services:
+  api:
+    container_name: buscapro-api-dev
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile.dev
+    working_dir: /repo
+    command: sh -c "pnpm install --frozen-lockfile=false && pnpm --filter @buscapro/api db:generate && pnpm --filter @buscapro/api dev"
+    ports:
+      - "${API_PORT:-3333}:3333"
+    env_file:
+      - ./apps/api/.env
+    environment:
+      NODE_ENV: development
+      API_PORT: 3333
+    volumes:
+      - ./:/repo
+      - node_modules_root:/repo/node_modules
+      - node_modules_api:/repo/apps/api/node_modules
+    networks:
+      - buscapro
+
+  web:
+    container_name: buscapro-web-dev
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.dev
+    working_dir: /repo
+    command: sh -c "pnpm install --frozen-lockfile=false && pnpm --filter @buscapro/web dev"
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    env_file:
+      - ./apps/web/.env
+    environment:
+      NODE_ENV: development
+      WEB_PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-3333}
+    volumes:
+      - ./:/repo
+      - node_modules_root:/repo/node_modules
+      - node_modules_web:/repo/apps/web/node_modules
+      - next_cache:/repo/apps/web/.next
+    depends_on:
+      - api
+    networks:
+      - buscapro
+
+volumes:
+  node_modules_root:
+  node_modules_api:
+  node_modules_web:
+  next_cache:
+
+networks:
+  buscapro:
+    driver: bridge

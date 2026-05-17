@@ -1,0 +1,15 @@
+# ============================================================
+# BuscaPRO api — Dockerfile.dev
+# Hot reload via tsx watch (rodar a partir da raiz do repo)
+# ============================================================
+FROM node:20-alpine
+
+RUN apk add --no-cache libc6-compat openssl && corepack enable
+
+WORKDIR /repo
+
+EXPOSE 3333
+ENV NODE_ENV=development
+
+WORKDIR /repo/apps/api
+CMD ["sh", "-c", "pnpm db:generate && pnpm dev"]
