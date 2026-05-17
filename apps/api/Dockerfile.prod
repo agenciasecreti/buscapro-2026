@@ -13,14 +13,11 @@ FROM base AS pruner
 COPY . .
 RUN npx turbo prune @buscapro/api --docker
 
-# ---- Installer: instala deps do subset prunado ----
-FROM base AS installer
+# ---- Installer + Builder: instala, gera Prisma e compila TS ----
+FROM base AS builder
 COPY --from=pruner /repo/out/json/ .
 COPY --from=pruner /repo/out/full/ .
 RUN pnpm install --frozen-lockfile
-
-# ---- Builder: gera Prisma Client e compila TS ----
-FROM installer AS builder
 RUN pnpm --filter @buscapro/api db:generate \
  && pnpm turbo run build --filter=@buscapro/api
 
@@ -33,11 +30,18 @@ RUN apk add --no-cache libc6-compat openssl \
  && addgroup --system --gid 1001 nodejs \
  && adduser --system --uid 1001 api
 
-# Copiar apenas o necessário — dist, prisma, package.json e node_modules completo
+# Copiar package.json e instalar APENAS dependências de produção com npm
+# (sem pnpm workspaces — resolve o problema de symlinks)
+COPY --from=builder /repo/apps/api/package.json ./package.json
+RUN npm install --omit=dev --ignore-scripts
+
+# Copiar dist e prisma
 COPY --from=builder --chown=api:nodejs /repo/apps/api/dist ./dist
 COPY --from=builder --chown=api:nodejs /repo/apps/api/prisma ./prisma
-COPY --from=builder --chown=api:nodejs /repo/apps/api/package.json ./package.json
-COPY --from=builder --chown=api:nodejs /repo/node_modules ./node_modules
+
+# Copiar Prisma Client gerado
+COPY --from=builder --chown=api:nodejs /repo/node_modules/.pnpm/@prisma+client@5.22.0/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --from=builder --chown=api:nodejs /repo/node_modules/.pnpm/@prisma+client@5.22.0/node_modules/.prisma ./node_modules/.prisma
 
 USER api
 EXPOSE 3333
