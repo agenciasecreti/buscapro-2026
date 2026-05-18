@@ -185,24 +185,24 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {categories.isLoading
                 ? Array.from({ length: 8 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-20 animate-pulse rounded-xl bg-muted"
-                    />
-                  ))
+                  <div
+                    key={i}
+                    className="h-20 animate-pulse rounded-xl bg-muted"
+                  />
+                ))
                 : categories.data?.slice(0, 8).map((c) => (
-                    <Link
-                      key={c.id}
-                      href={`/buscar?categoryId=${c.id}`}
-                      className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <Card className="flex h-20 items-center justify-center px-4 text-center transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:bg-primary/5">
-                        <span className="text-sm font-semibold text-foreground">
-                          {c.name}
-                        </span>
-                      </Card>
-                    </Link>
-                  ))}
+                  <Link
+                    key={c.id}
+                    href={`/buscar?categoryId=${c.id}`}
+                    className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <Card className="flex h-20 items-center justify-center px-4 text-center transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:bg-primary/5">
+                      <span className="text-sm font-semibold text-foreground">
+                        {c.name}
+                      </span>
+                    </Card>
+                  </Link>
+                ))}
             </div>
           </div>
         </section>
@@ -264,11 +264,11 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {featured.isLoading
                 ? Array.from({ length: 6 }).map((_, i) => (
-                    <ServiceCardSkeleton key={i} />
-                  ))
+                  <ServiceCardSkeleton key={i} />
+                ))
                 : featured.data?.items.map((s) => (
-                    <ServiceCard key={s.id} service={s} />
-                  ))}
+                  <ServiceCard key={s.id} service={s} />
+                ))}
             </div>
           </div>
         </section>
@@ -367,7 +367,7 @@ export default function LandingPage() {
           <div className="text-sm">
             <p className="font-semibold text-foreground">Contato</p>
             <p className="mt-3 text-muted-foreground">
-              contato@buscapro.com.br
+              contato@secreti.com.br
             </p>
           </div>
         </div>
