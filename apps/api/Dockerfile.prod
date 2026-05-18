@@ -1,19 +1,17 @@
-—ó# ============================================================
-# BuscaPRO api — Dockerfile.prod (multi-stage)
-# Build context: raiz do monorepo
-# ============================================================
+# BuscaPRO api - Dockerfile.prod (multi-stage)
+# Build context: root of monorepo
 
-# ---- Base ----
+# Base
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat openssl && corepack enable
 WORKDIR /repo
 
-# ---- Pruner: isola só os arquivos da api e suas deps ----
+# Pruner: isolate api files
 FROM base AS pruner
 COPY . .
 RUN npx turbo prune @buscapro/api --docker
 
-# ---- Installer + Builder: instala, gera Prisma e compila TS ----
+# Builder: install, generate Prisma, compile
 FROM base AS builder
 COPY --from=pruner /repo/out/json/ .
 COPY --from=pruner /repo/out/full/ .
@@ -22,7 +20,7 @@ RUN pnpm --filter @buscapro/api db:generate \
   && pnpm turbo run build --filter=@buscapro/api
 RUN pnpm --filter @buscapro/api deploy --prod --legacy /deploy
 
-# ---- Runner: imagem enxuta de producao ----
+# Runner: lean production image
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -30,17 +28,18 @@ RUN apk add --no-cache libc6-compat openssl \
   && addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 api
 
-# Copiar node_modules do pnpm deploy (sem symlinks)
+# Copy node_modules from pnpm deploy (no symlinks)
 COPY --from=builder --chown=api:nodejs /deploy/node_modules ./node_modules
 
-# Copiar dist e prisma
+# Copy dist and prisma schema
 COPY --from=builder --chown=api:nodejs /repo/apps/api/dist ./dist
 COPY --from=builder --chown=api:nodejs /repo/apps/api/prisma ./prisma
 
-# Copiar Prisma Client gerado (path dinamico via find)
-RUN --mount=type=bind,from=builder,source=/repo/node_modules/.pnpm,target=/pnpm_modules \
-  PRISMA_PATH=$(find /pnpm_modules -maxdepth 2 -name '.prisma' -type d | head -1) && \
-  cp -r $PRISMA_PATH ./node_modules/.prisma
+# Copy generated Prisma client - find path dynamically
+COPY --from=builder /repo/node_modules/.pnpm /tmp/pnpm_modules
+RUN PRISMA_PATH=$(find /tmp/pnpm_modules -maxdepth 3 -name '.prisma' -type d | head -1) \
+  && cp -r "$PRISMA_PATH" ./node_modules/.prisma \
+  && rm -rf /tmp/pnpm_modules
 
 USER api
 EXPOSE 3333
